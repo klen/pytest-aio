@@ -40,6 +40,7 @@ class AIORunner(metaclass=ABCMeta):
 class AsyncioRunner(AIORunner):
 
     def __init__(self, debug: bool = False, use_uvloop: bool = True):
+        asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
         if use_uvloop:
             try:
                 import uvloop

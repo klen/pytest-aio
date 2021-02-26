@@ -25,9 +25,7 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> t.Optional[bool]:
     if not iscoroutinefunction(testfunc):
         return None
 
-    aiolib, params = pyfuncitem.funcargs.get('aiolib', 'asyncio'), {}
-    if isinstance(aiolib, tuple):
-        aiolib, params = aiolib
+    aiolib, params = pyfuncitem.funcargs.get('aiolib', 'asyncio')
 
     def run(**kwargs):
         with get_runner(aiolib, **params) as runner:
