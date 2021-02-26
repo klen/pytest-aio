@@ -57,9 +57,9 @@ When installed the plugin run all your async test functions/fixtures.
         assert True
 
 
-By default each test function will be run with asyncio, trio, curio libraries
-consistently. But you can customise the libraries for all your tests creating the
-fixture:
+By default each test function will be run with asyncio, trio, curio backends
+consistently. But you can customise the libraries for all your tests creating
+the global fixture:
 
 .. code-block:: python
 
@@ -68,7 +68,20 @@ fixture:
     def aiolib(request):
         assert request.param
 
-Or customize an async backend for a test only:
+If you want to specify different options for the selected backend, you can do
+so by passing a tuple of (backend name, options dict):
+
+.. code-block:: python
+
+    @pytest.fixture(params=[
+        pytest.param(('asyncio', {'use_uvloop': False}), id='asyncio'),
+        pytest.param(('asyncio', {'use_uvloop': True}), id='asyncio+uvloop'),
+        'trio',
+        pytest.param(('curio', {'debug': True}), id='curio'),
+    def aiolib(request):
+        assert request.param
+
+To set a specific backends for a single test only:
 
 .. code-block:: python
 

@@ -6,6 +6,16 @@ import sniffio
 from hypothesis import given, strategies
 
 
+@pytest.fixture(params=[
+    pytest.param(('asyncio', {'use_uvloop': True}), id='asyncio+uvloop'),
+    pytest.param(('asyncio', {'use_uvloop': False}), id='asyncio'),
+    pytest.param(('trio', {'restrict_keyboard_interrupt_to_checkpoints': True}), id='trio'),
+    'curio',
+])
+def aiolib(request):
+    return request.param
+
+
 # Fixtures
 # --------
 
@@ -41,7 +51,9 @@ def test_sync(sync_fixture, sync_gen_fixture):
 
 async def test_async(aiolib):
     await aio_sleep(1e-2)
-    assert sniffio.current_async_library() == aiolib
+    lib, _ = aiolib
+    curlib = sniffio.current_async_library()
+    assert lib.startswith(curlib)
 
 
 async def test_async_fixture(async_fixture):

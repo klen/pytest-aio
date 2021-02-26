@@ -1,5 +1,5 @@
 import typing as t
-from inspect import iscoroutinefunction, isasyncgenfunction, iscoroutine
+from inspect import iscoroutinefunction, isasyncgenfunction
 
 import pytest
 
@@ -25,10 +25,12 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> t.Optional[bool]:
     if not iscoroutinefunction(testfunc):
         return None
 
-    aiolib: str = pyfuncitem.funcargs.get('aiolib', 'asyncio')  # type: ignore
+    aiolib, params = pyfuncitem.funcargs.get('aiolib', 'asyncio'), {}
+    if isinstance(aiolib, tuple):
+        aiolib, params = aiolib
 
     def run(**kwargs):
-        with get_runner(aiolib) as runner:
+        with get_runner(aiolib, **params) as runner:
             runner.run(testfunc, **kwargs)
 
     if is_hypothesis:
@@ -44,6 +46,14 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> t.Optional[bool]:
 
 def pytest_fixture_setup(fixturedef, request):
     func = fixturedef.func
+    if fixturedef.argname == 'aiolib':
+
+        def wrapper(request):
+            return request.param if isinstance(request.param, tuple) else (request.param, {})
+
+        fixturedef.func = wrapper
+        return
+
     if not (iscoroutinefunction(func) or isasyncgenfunction(func)):
         return
 
@@ -51,7 +61,8 @@ def pytest_fixture_setup(fixturedef, request):
         return
 
     def wrapper(*args, aiolib, **kwargs):
-        with get_runner(aiolib) as runner:
+        lib, params = aiolib
+        with get_runner(lib, **params) as runner:
             if iscoroutinefunction(func):
                 yield runner.run(func, *args, **kwargs)
 

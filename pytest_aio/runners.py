@@ -36,8 +36,17 @@ class AIORunner(metaclass=ABCMeta):
 
 class AsyncioRunner(AIORunner):
 
-    def __init__(self):
+    def __init__(self, debug: bool = False, use_uvloop: bool = True):
+        if use_uvloop:
+            try:
+                import uvloop
+
+                asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+            except ImportError:
+                pass
+
         self._loop = asyncio.new_event_loop()
+        self._loop.set_debug(debug)
         asyncio.set_event_loop(self._loop)
 
     def run(self, fn: t.Callable[..., t.Awaitable], *args, **kwargs):
@@ -64,11 +73,11 @@ class AsyncioRunner(AIORunner):
 
 class CurioRunner(AIORunner):
 
-    def __init__(self):
+    def __init__(self, **params):
         if curio is None:
             raise RuntimeError('Curio is not installed.')
 
-        self._kernel = curio.Kernel()
+        self._kernel = curio.Kernel(**params)
 
     def close(self):
         self._kernel.run(shutdown=True)
@@ -83,9 +92,10 @@ class CurioRunner(AIORunner):
 
 class TrioRunner(AIORunner):
 
-    def __init__(self):
+    def __init__(self, **params):
         if trio is None:
             raise RuntimeError('Trio is not installed.')
+        self.params = params
 
     def close(self):
         pass
@@ -95,14 +105,14 @@ class TrioRunner(AIORunner):
         async def helper():
             return await fn(*args, **kwargs)
 
-        return trio.run(helper)
+        return trio.run(helper, **self.params)
 
 
 CURRENT_RUNNER = None
 
 
 @contextmanager
-def get_runner(aiolib: str) -> t.Generator[AIORunner, t.Any, None]:
+def get_runner(aiolib: str, **params) -> t.Generator[AIORunner, t.Any, None]:
     global CURRENT_RUNNER
     if CURRENT_RUNNER:
         yield CURRENT_RUNNER
@@ -110,14 +120,14 @@ def get_runner(aiolib: str) -> t.Generator[AIORunner, t.Any, None]:
 
     Runner: t.Type[AIORunner] = AsyncioRunner
 
-    if aiolib == 'trio':
+    if aiolib.startswith('trio'):
         Runner = TrioRunner
 
-    elif aiolib == 'curio':
+    elif aiolib.startswith('curio'):
         Runner = CurioRunner
 
     try:
-        with Runner() as runner:
+        with Runner(**params) as runner:
             CURRENT_RUNNER = runner
             yield runner
 
