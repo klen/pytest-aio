@@ -19,6 +19,9 @@ except ImportError:
 
 class AIORunner(metaclass=ABCMeta):
 
+    def __init__(self, **params):
+        pass
+
     @abstractmethod
     def close(self):
         """Close the runner."""
