@@ -47,8 +47,8 @@ register:
 
 .PHONY: upload
 # target: upload - Upload module on PyPi
-upload: clean
-	@python setup.py bdist_wheel
+upload: clean $(VIRTUAL_ENV)
+	@$(VIRTUAL_ENV)/bin/python setup.py bdist_wheel
 	@$(VIRTUAL_ENV)/bin/twine upload dist/*
 
 
