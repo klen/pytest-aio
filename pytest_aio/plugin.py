@@ -46,8 +46,9 @@ def pytest_fixture_setup(fixturedef, request):
     func = fixturedef.func
     if fixturedef.argname == 'aiolib':
 
-        def wrapper(request):
-            return request.param if isinstance(request.param, tuple) else (request.param, {})
+        def wrapper(*args, **kwargs):
+            aiolib = func(*args, **kwargs)
+            return aiolib if isinstance(aiolib, tuple) else (aiolib, {})
 
         fixturedef.func = wrapper
         return
