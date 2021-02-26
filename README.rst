@@ -78,6 +78,7 @@ so by passing a tuple of (backend name, options dict):
         pytest.param(('asyncio', {'use_uvloop': True}), id='asyncio+uvloop'),
         'trio',
         pytest.param(('curio', {'debug': True}), id='curio'),
+    ])
     def aiolib(request):
         assert request.param
 
