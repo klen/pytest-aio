@@ -1,29 +1,43 @@
 import typing as t
-from inspect import iscoroutinefunction, isasyncgenfunction
+from inspect import iscoroutinefunction, isasyncgenfunction, iscoroutine
 
 import pytest
 
 from .runners import get_runner
+from .utils import get_testfunc
 
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_pycollect_makeitem(collector, name, obj):
     if collector.istestfunction(obj, name):
-        inner_func = obj.hypothesis.inner_test if hasattr(obj, 'hypothesis') else obj
-        if iscoroutinefunction(inner_func):
+        testfunc, _ = get_testfunc(obj)
+        if iscoroutinefunction(testfunc):
             pytest.mark.usefixtures('aiolib')(obj)
 
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> t.Optional[bool]:
-    if not iscoroutinefunction(pyfuncitem.obj):
+    backend = pyfuncitem.funcargs.get('aiolib')
+    if not backend:
         return None
 
-    funcargs = pyfuncitem.funcargs
-    testargs = {arg: funcargs[arg] for arg in pyfuncitem._fixtureinfo.argnames}
+    testfunc, is_hypothesis = get_testfunc(pyfuncitem.obj)
+    if not iscoroutinefunction(testfunc):
+        return None
+
     aiolib: str = pyfuncitem.funcargs.get('aiolib', 'asyncio')  # type: ignore
-    with get_runner(aiolib) as runner:
-        runner.run(pyfuncitem.obj, **testargs)
+
+    def run(**kwargs):
+        with get_runner(aiolib) as runner:
+            runner.run(testfunc, **kwargs)
+
+    if is_hypothesis:
+        pyfuncitem.obj.hypothesis.inner_test = run
+
+    else:
+        funcargs = pyfuncitem.funcargs
+        testargs = {arg: funcargs[arg] for arg in pyfuncitem._fixtureinfo.argnames}
+        run(**testargs)
 
     return True
 
