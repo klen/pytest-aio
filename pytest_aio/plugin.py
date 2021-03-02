@@ -87,6 +87,6 @@ def pytest_fixture_setup(fixturedef, request):
         fixturedef.argnames += 'aiolib',
 
 
-@pytest.fixture(params=['asyncio', 'trio', 'curio'])
+@pytest.fixture(params=['asyncio', 'trio', 'curio'], scope='session')
 def aiolib(request):
     return request.param
