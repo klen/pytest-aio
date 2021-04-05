@@ -58,8 +58,8 @@ When installed the plugin run all your async test functions/fixtures.
 
 
 By default each test function will be run with asyncio, trio, curio backends
-consistently. But you can customise the libraries for all your tests creating
-the global fixture:
+consistently (only if trio/curio are available). But you can customise the
+libraries for all your tests creating the global fixture:
 
 .. code-block:: python
 

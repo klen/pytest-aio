@@ -4,7 +4,7 @@ from inspect import iscoroutinefunction, isasyncgenfunction
 import pytest
 
 from .runners import get_runner
-from .utils import get_testfunc
+from .utils import get_testfunc, trio, curio
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -87,6 +87,8 @@ def pytest_fixture_setup(fixturedef, request):
         fixturedef.argnames += 'aiolib',
 
 
-@pytest.fixture(params=['asyncio', 'trio', 'curio'], scope='session')
+DEFAULT_AIOLIBS = ['asyncio', *(trio and ['trio'] or []), *(curio and ['curio'] or [])]
+
+@pytest.fixture(params=DEFAULT_AIOLIBS, scope='session')
 def aiolib(request):
     return request.param
