@@ -56,9 +56,6 @@ def pytest_fixture_setup(fixturedef, request):
     if not (iscoroutinefunction(func) or isasyncgenfunction(func)):
         return
 
-    if 'aiolib' not in request.fixturenames:
-        return
-
     def wrapper(*args, aiolib, **kwargs):
         lib, params = aiolib
         with get_runner(lib, **params) as runner:
@@ -88,6 +85,7 @@ def pytest_fixture_setup(fixturedef, request):
 
 
 DEFAULT_AIOLIBS = ['asyncio', *(trio and ['trio'] or []), *(curio and ['curio'] or [])]
+
 
 @pytest.fixture(params=DEFAULT_AIOLIBS, scope='session')
 def aiolib(request):
