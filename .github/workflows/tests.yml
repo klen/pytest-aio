@@ -44,4 +44,4 @@ jobs:
         env/bin/pip install .[tests]
 
     - name: Test with pytest
-      run: pytest tests.py
+      run: env/bin/pytest tests.py
