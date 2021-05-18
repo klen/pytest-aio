@@ -32,16 +32,16 @@ jobs:
       run: |
         echo "::set-output name=dir::$(pip cache dir)"
 
-    - name: Cache pip
+    - name: Cache env
       uses: actions/cache@v2.1.5
       with:
-        path: ${{ steps.pip-cache.outputs.dir }}
-        key: ${{ runner.os }}-pip-${{ hashFiles('setup.cfg') }}-${{ matrix.python-version }}
+        path: env
+        key: ${{ runner.os }}-env-${{ matrix.python-version }}-${{ hashFiles('setup.cfg') }}-${{ matrix.python-version }}
 
     - name: Install dependencies
       run: |
-        python -m pip install .[tests]
+        python -m venv env
+        env/bin/pip install .[tests]
 
     - name: Test with pytest
-      run: |
-        pytest tests.py
+      run: pytest tests.py
