@@ -38,3 +38,7 @@ async def test_async_fixtures(async_fixture, async_gen_fixture):
 
 def test_sync_with_async_fixtures(async_fixture):
     assert async_fixture == 'async_fixture'
+
+
+def test_sync_with_async_fixtures2(async_gen_fixture, aiolib):
+    assert async_gen_fixture == 'async_gen_fixture'

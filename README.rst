@@ -91,6 +91,32 @@ To set a specific backends for a single test only:
         await asyncio.sleep(1)
         assert True
 
+Async fixtures for sync tests
+-----------------------------
+
+If you plan use async fixtures for sync tests, please ensure you have to
+include `aiolib` fixture:
+
+.. code-block:: python
+
+    # It's important to add aiolib fixture here
+    def test_with_async_fixtures(async_fixture, aiolib):
+        assert async_fixture == 'value from async fixture'
+
+As an alternative, If you are doing the async fixtures yourself, you can add
+`aiolib` inside them:
+
+.. code-block:: python
+
+    @pytest.fixture
+    async def async_fixture(aiolib):
+        return 'value from async fixture'
+
+    # So for the test we don't need to implicity use `aiolib` anymore
+    def test_with_async_fixtures(async_fixture):
+        assert async_fixture == 'value from async fixture'
+
+
 .. _bugtracker:
 
 Bug tracker
