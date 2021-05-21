@@ -7,6 +7,14 @@ from .runners import get_runner
 from .utils import get_testfunc, trio, curio
 
 
+DEFAULT_AIOLIBS = ['asyncio', *(trio and ['trio'] or []), *(curio and ['curio'] or [])]
+
+
+@pytest.fixture(params=DEFAULT_AIOLIBS, scope='session')
+def aiolib(request):
+    return request.param
+
+
 @pytest.hookimpl(tryfirst=True)
 def pytest_pycollect_makeitem(collector, name, obj):
     if collector.istestfunction(obj, name):
@@ -19,13 +27,13 @@ def pytest_pycollect_makeitem(collector, name, obj):
 def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> t.Optional[bool]:
     backend = pyfuncitem.funcargs.get('aiolib')
     if not backend:
-        return None
+        return
 
     testfunc, is_hypothesis = get_testfunc(pyfuncitem.obj)
     if not iscoroutinefunction(testfunc):
-        return None
+        return
 
-    aiolib, params = pyfuncitem.funcargs.get('aiolib', 'asyncio')
+    aiolib, params = backend
 
     def run(**kwargs):
         with get_runner(aiolib, **params) as runner:
@@ -43,10 +51,14 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> t.Optional[bool]:
 
 
 def pytest_fixture_setup(fixturedef, request):
+    """Support async fixtures."""
+
     func = fixturedef.func
+
     if fixturedef.argname == 'aiolib':
 
         def wrapper(*args, **kwargs):
+            """Convert aiolib fixture value to a tuple."""
             aiolib = func(*args, **kwargs)
             return aiolib if isinstance(aiolib, tuple) else (aiolib, {})
 
@@ -82,11 +94,3 @@ def pytest_fixture_setup(fixturedef, request):
     fixturedef.func = wrapper
     if 'aiolib' not in fixturedef.argnames:
         fixturedef.argnames += 'aiolib',
-
-
-DEFAULT_AIOLIBS = ['asyncio', *(trio and ['trio'] or []), *(curio and ['curio'] or [])]
-
-
-@pytest.fixture(params=DEFAULT_AIOLIBS, scope='session')
-def aiolib(request):
-    return request.param
