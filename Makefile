@@ -42,7 +42,7 @@ clean:
 
 
 test t: $(VIRTUAL_ENV)
-	$(VIRTUAL_ENV)/bin/pytest tests.py
+	$(VIRTUAL_ENV)/bin/pytest tests
 
 
 mypy: $(VIRTUAL_ENV)

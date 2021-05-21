@@ -29,11 +29,10 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> t.Optional[bool]:
     if not backend:
         return
 
+    aiolib, params = backend
     testfunc, is_hypothesis = get_testfunc(pyfuncitem.obj)
     if not iscoroutinefunction(testfunc):
         return
-
-    aiolib, params = backend
 
     def run(**kwargs):
         with get_runner(aiolib, **params) as runner:
@@ -55,21 +54,30 @@ def pytest_fixture_setup(fixturedef, request):
 
     func = fixturedef.func
 
+    # Fix aiolib fixture
     if fixturedef.argname == 'aiolib':
 
-        def wrapper(*args, **kwargs):
+        def fix_aiolib(*args, **kwargs):
             """Convert aiolib fixture value to a tuple."""
             aiolib = func(*args, **kwargs)
             return aiolib if isinstance(aiolib, tuple) else (aiolib, {})
 
-        fixturedef.func = wrapper
+        fixturedef.func = fix_aiolib
         return
 
+    # Skip sync functions
     if not (iscoroutinefunction(func) or isasyncgenfunction(func)):
         return
 
+    argnames = fixturedef.argnames
+    if 'aiolib' not in fixturedef.argnames:
+        fixturedef.argnames += 'aiolib',
+
     def wrapper(*args, aiolib, **kwargs):
         lib, params = aiolib
+        if 'aiolib' in argnames:
+            args += aiolib,
+
         with get_runner(lib, **params) as runner:
             if iscoroutinefunction(func):
                 yield runner.run(func, *args, **kwargs)
@@ -92,5 +100,3 @@ def pytest_fixture_setup(fixturedef, request):
                     raise RuntimeError('Async generator fixture did not stop')
 
     fixturedef.func = wrapper
-    if 'aiolib' not in fixturedef.argnames:
-        fixturedef.argnames += 'aiolib',
