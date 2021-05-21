@@ -76,7 +76,7 @@ def pytest_fixture_setup(fixturedef, request):
     def wrapper(*args, aiolib, **kwargs):
         lib, params = aiolib
         if 'aiolib' in argnames:
-            args += aiolib,
+            kwargs['aiolib'] = aiolib
 
         with get_runner(lib, **params) as runner:
             if iscoroutinefunction(func):

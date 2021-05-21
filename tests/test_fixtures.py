@@ -14,7 +14,7 @@ def sync_gen_fixture():
 
 
 @pytest.fixture
-async def async_fixture(aiolib):
+async def async_fixture(pytestconfig, aiolib):
     await aio_sleep(1e-2)
     return 'async_fixture'
 
