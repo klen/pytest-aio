@@ -33,7 +33,7 @@ jobs:
         echo "::set-output name=dir::$(pip cache dir)"
 
     - name: Cache env
-      uses: actions/cache@v2.1.5
+      uses: actions/cache@v2.1.6
       with:
         path: env
         key: ${{ runner.os }}-env-${{ matrix.python-version }}-${{ hashFiles('setup.cfg') }}-${{ matrix.python-version }}
