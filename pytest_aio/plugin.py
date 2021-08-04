@@ -81,22 +81,27 @@ def pytest_fixture_setup(fixturedef, request):
         with get_runner(lib, **params) as runner:
             if iscoroutinefunction(func):
                 yield runner.run(func, *args, **kwargs)
+                return
 
-            else:
-                gen = func(*args, **kwargs)
+            gen = func(*args, **kwargs)
+            while True:
                 try:
-                    value = runner.run(gen.asend, None)
-                except StopIteration:
-                    raise RuntimeError('Async generator did not yield')
+                    yield runner.run(gen.asend, None)
+                except (StopIteration, StopAsyncIteration):
+                    break
 
-                yield value
+                #  try:
+                #      yield runner.run(gen.asend, None)
+                #  except StopIteration:
+                #      raise RuntimeError(f"Fixture `{func}` did not yield")
 
-                try:
-                    runner.run(gen.asend, None)
-                except StopAsyncIteration:
-                    pass
-                else:
-                    runner.run(gen.aclose)
-                    raise RuntimeError('Async generator fixture did not stop')
+                #  runner.run(gen.asend, None)
+                #  try:
+                #      runner.run(gen.asend, None)
+                #  except StopAsyncIteration:
+                #      pass
+                #  else:
+                #      runner.run(gen.aclose)
+                #      raise RuntimeError('Async generator fixture did not stop')
 
     fixturedef.func = wrapper
