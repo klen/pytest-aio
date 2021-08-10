@@ -3,12 +3,14 @@ pytest-aio
 
 .. _description:
 
-**pytest-aio** -- Is a simple pytest_ plugin for testing async python code
+**pytest-aio** -- Is a simple pytest_ plugin for testing any async python code
 
-The plugin supports all popular python async libraries: (Asyncio_, Trio_, Curio_)
+Features
+--------
 
-``pytest-aio`` has been strongly influenced by AnyIO_. Since 2021-02-09 AnyIO_
-has dropped support for Curio_, so the plugin has been created.
+- Supports all most popular async python libraries: `Asyncio`_, `Trio`_ and Curio_
+- Automatically run your async tests
+- Works with `contextvars` correctly (supports it for async/sync fixtures)
 
 .. _badges:
 
@@ -49,16 +51,18 @@ optionally extras are available: ::
 Usage
 =====
 
-When installed the plugin run all your async test functions/fixtures.
+When installed the plugin runs all your async test functions/fixtures.
 
 .. code-block:: python
 
     async def test_async():
         assert True
 
+No need to mark your async tests. Just run pytest as is.
+
 
 By default each test function will be run with asyncio, trio, curio backends
-consistently (only if trio/curio are available). But you can customise the
+consistently (only if trio/curio are installed). But you can customise the
 libraries for all your tests creating the global fixture:
 
 .. code-block:: python

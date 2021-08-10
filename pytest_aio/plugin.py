@@ -1,4 +1,5 @@
 import typing as t
+from contextvars import Context
 from inspect import iscoroutinefunction, isasyncgenfunction
 
 import pytest
@@ -12,11 +13,20 @@ DEFAULT_AIOLIBS = ['asyncio', *(trio and ['trio'] or []), *(curio and ['curio'] 
 
 @pytest.fixture(params=DEFAULT_AIOLIBS, scope='session')
 def aiolib(request):
+    """Iterate async libraries."""
     return request.param
+
+
+@pytest.fixture
+def aiocontext(aiolib, request):
+    """Update context."""
+    ctx = Context()
+    return ctx
 
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_pycollect_makeitem(collector, name, obj):
+    """Mark async functions."""
     if collector.istestfunction(obj, name):
         testfunc, _ = get_testfunc(obj)
         if iscoroutinefunction(testfunc):
@@ -25,14 +35,14 @@ def pytest_pycollect_makeitem(collector, name, obj):
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> t.Optional[bool]:
-    backend = pyfuncitem.funcargs.get('aiolib')
+    backend: t.Tuple[str, t.Dict] = pyfuncitem.funcargs.get('aiolib')  # type: ignore
     if not backend:
-        return
+        return None
 
     aiolib, params = backend
     testfunc, is_hypothesis = get_testfunc(pyfuncitem.obj)
     if not iscoroutinefunction(testfunc):
-        return
+        return None
 
     def run(**kwargs):
         with get_runner(aiolib, **params) as runner:
@@ -89,19 +99,5 @@ def pytest_fixture_setup(fixturedef, request):
                     yield runner.run(gen.asend, None)
                 except (StopIteration, StopAsyncIteration):
                     break
-
-                #  try:
-                #      yield runner.run(gen.asend, None)
-                #  except StopIteration:
-                #      raise RuntimeError(f"Fixture `{func}` did not yield")
-
-                #  runner.run(gen.asend, None)
-                #  try:
-                #      runner.run(gen.asend, None)
-                #  except StopAsyncIteration:
-                #      pass
-                #  else:
-                #      runner.run(gen.aclose)
-                #      raise RuntimeError('Async generator fixture did not stop')
 
     fixturedef.func = wrapper

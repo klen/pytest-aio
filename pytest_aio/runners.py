@@ -4,23 +4,15 @@ import asyncio
 import typing as t
 from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager
+from contextvars import Context, copy_context
 
-
-try:
-    import curio
-except ImportError:
-    curio = None
-
-try:
-    import trio
-except ImportError:
-    trio = None
+from .utils import curio, trio, AsyncioContextTask
 
 
 class AIORunner(metaclass=ABCMeta):
 
     def __init__(self, **params):
-        pass
+        self.ctx = copy_context()
 
     @abstractmethod
     def close(self):
@@ -40,6 +32,7 @@ class AIORunner(metaclass=ABCMeta):
 class AsyncioRunner(AIORunner):
 
     def __init__(self, debug: bool = False, use_uvloop: bool = True):
+        super(AsyncioRunner, self).__init__()
         asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
         if use_uvloop:
             try:
@@ -54,7 +47,9 @@ class AsyncioRunner(AIORunner):
         asyncio.set_event_loop(self._loop)
 
     def run(self, fn: t.Callable[..., t.Awaitable], *args, **kwargs):
-        return self._loop.run_until_complete(fn(*args, **kwargs))
+        loop: asyncio.AbstractEventLoop = self._loop
+        task = AsyncioContextTask(fn(*args, **kwargs), self.ctx, loop)
+        return loop.run_until_complete(task)
 
     def close(self):
         try:
@@ -62,8 +57,7 @@ class AsyncioRunner(AIORunner):
             for task in tasks:
                 task.cancel()
 
-            self._loop.run_until_complete(asyncio.gather(
-                *tasks, loop=self._loop, return_exceptions=True))
+            self._loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
 
             for task in tasks:
                 if task.cancelled():
@@ -82,6 +76,8 @@ class CurioRunner(AIORunner):
         if curio is None:
             raise RuntimeError('Curio is not installed.')
 
+        super(CurioRunner, self).__init__()
+
         self._kernel = curio.Kernel(**params)
 
     def close(self):
@@ -92,7 +88,7 @@ class CurioRunner(AIORunner):
         async def helper():
             return await fn(*args, **kwargs)
 
-        return self._kernel.run(helper)
+        return self.ctx.run(self._kernel.run, helper)
 
 
 class TrioRunner(AIORunner):
@@ -100,15 +96,22 @@ class TrioRunner(AIORunner):
     def __init__(self, **params):
         if trio is None:
             raise RuntimeError('Trio is not installed.')
+
+        super(TrioRunner, self).__init__()
         self.params = params
 
     def close(self):
         pass
 
     def run(self, fn: t.Callable[..., t.Awaitable], *args, **kwargs):
+        ctx = self.ctx
 
         async def helper():
-            return await fn(*args, **kwargs)
+            for var in ctx:
+                var.set(ctx[var])
+            res = await fn(*args, **kwargs)
+            self.ctx = copy_context()
+            return res
 
         return trio.run(helper, **self.params)
 
