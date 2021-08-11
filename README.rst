@@ -60,6 +60,34 @@ When installed the plugin runs all your async test functions/fixtures.
 
 No need to mark your async tests. Just run pytest as is.
 
+Async fixtures for sync tests
+-----------------------------
+
+If you plan use async fixtures for sync tests, please ensure you have to
+include `aiolib` fixture:
+
+.. code-block:: python
+
+    # It's important to add aiolib fixture here
+    def test_with_async_fixtures(async_fixture, aiolib):
+        assert async_fixture == 'value from async fixture'
+
+As an alternative, If you are doing the async fixtures yourself, you can add
+`aiolib` inside them:
+
+.. code-block:: python
+
+    @pytest.fixture
+    async def async_fixture(aiolib):
+        return 'value from async fixture'
+
+    # So for the test we don't need to implicity use `aiolib` anymore
+    def test_with_async_fixtures(async_fixture):
+        assert async_fixture == 'value from async fixture'
+
+
+Customize async libraries
+-------------------------
 
 By default each test function will be run with asyncio, trio, curio backends
 consistently (only if trio/curio are installed). But you can customise the
@@ -94,31 +122,6 @@ To set a specific backends for a single test only:
     async def only_with_asyncio():
         await asyncio.sleep(1)
         assert True
-
-Async fixtures for sync tests
------------------------------
-
-If you plan use async fixtures for sync tests, please ensure you have to
-include `aiolib` fixture:
-
-.. code-block:: python
-
-    # It's important to add aiolib fixture here
-    def test_with_async_fixtures(async_fixture, aiolib):
-        assert async_fixture == 'value from async fixture'
-
-As an alternative, If you are doing the async fixtures yourself, you can add
-`aiolib` inside them:
-
-.. code-block:: python
-
-    @pytest.fixture
-    async def async_fixture(aiolib):
-        return 'value from async fixture'
-
-    # So for the test we don't need to implicity use `aiolib` anymore
-    def test_with_async_fixtures(async_fixture):
-        assert async_fixture == 'value from async fixture'
 
 
 .. _bugtracker:
