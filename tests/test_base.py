@@ -20,5 +20,5 @@ async def test_aiolib(aiolib):
 
 
 @pytest.mark.parametrize('aiolib', ['trio', 'curio'])
-async def test_custom_aiolibs():
+async def test_parametrize_aiolib(aiolib):
     assert sniffio.current_async_library() in {'trio', 'curio'}
