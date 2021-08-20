@@ -4,7 +4,7 @@ import asyncio
 import typing as t
 from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager
-from contextvars import Context, copy_context
+from contextvars import copy_context
 
 from .utils import curio, trio, AsyncioContextTask
 
@@ -54,10 +54,16 @@ class AsyncioRunner(AIORunner):
     def close(self):
         try:
             tasks = asyncio.all_tasks(self._loop)
+            if not tasks:
+                return
+
             for task in tasks:
                 task.cancel()
 
-            self._loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
+            asyncio.set_event_loop(self._loop)
+            self._loop.run_until_complete(
+                asyncio.gather(*tasks, return_exceptions=True)
+            )
 
             for task in tasks:
                 if task.cancelled():
