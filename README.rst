@@ -5,13 +5,6 @@ pytest-aio
 
 **pytest-aio** -- Is a simple pytest_ plugin for testing any async python code
 
-Features
---------
-
-- Supports all most popular async python libraries: `Asyncio`_, `Trio`_ and Curio_
-- Automatically run your async tests
-- Works with `contextvars` correctly (supports it for async/sync fixtures)
-
 .. _badges:
 
 .. image:: https://github.com/klen/pytest-aio/workflows/tests/badge.svg
@@ -25,6 +18,13 @@ Features
 .. image:: https://img.shields.io/pypi/pyversions/pytest-aio
     :target: https://pypi.org/project/pytest-aio/
     :alt: Python Versions
+
+Features
+--------
+
+- Supports all most popular async python libraries: `Asyncio`_, `Trio`_ and Curio_
+- Automatically run your async tests
+- Works with `contextvars` correctly (supports it for async/sync fixtures)
 
 .. _contents:
 
