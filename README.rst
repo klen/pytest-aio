@@ -25,6 +25,7 @@ Features
 - Supports all most popular async python libraries: `Asyncio`_, `Trio`_ and Curio_
 - Automatically run your async tests
 - Works with `contextvars` correctly (supports it for async/sync fixtures)
+- Supports `trio-asyncio`_
 
 .. _contents:
 
@@ -108,7 +109,7 @@ so by passing a tuple of (backend name, options dict):
     @pytest.fixture(params=[
         pytest.param(('asyncio', {'use_uvloop': False}), id='asyncio'),
         pytest.param(('asyncio', {'use_uvloop': True}), id='asyncio+uvloop'),
-        'trio',
+        pytest.param(('trio', {'trio_asyncio': True}), id='trio+asyncio'),
         pytest.param(('curio', {'debug': True}), id='curio'),
     ])
     def aiolib(request):
@@ -157,3 +158,4 @@ Licensed under a `MIT license`_.
 .. _klen: https://github.com/klen
 .. _pytest: https://docs.pytest.org/en/stable/
 .. _AnyIO: https://github.com/agronholm/anyio
+.. _trio-asyncio: https://github.com/python-trio/trio-asyncio 
