@@ -103,17 +103,17 @@ class TrioRunner(AIORunner):
     async def run_context(self):
         yield
 
-    def __init__(self, **params):
+    def __init__(self, trio_asyncio=False, **params):
         if trio is None:
             raise RuntimeError('Trio is not installed.')
 
         super(TrioRunner, self).__init__()
         self.params = params
 
-        if self.params.pop('trio_asyncio', False):
-            import trio_asyncio
+        if trio_asyncio:
+            import trio_asyncio as asyncio_trio
 
-            self.run_context = trio_asyncio.open_loop
+            self.run_context = asyncio_trio.open_loop
 
     def close(self):
         pass
@@ -122,12 +122,12 @@ class TrioRunner(AIORunner):
         ctx = self.ctx
 
         async def helper():
+            for var in ctx:
+                var.set(ctx[var])
             async with self.run_context():
-                for var in ctx:
-                    var.set(ctx[var])
                 res = await fn(*args, **kwargs)
-                self.ctx = copy_context()
-                return res
+            self.ctx = copy_context()
+            return res
 
         return trio.run(helper, **self.params)
 
