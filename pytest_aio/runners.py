@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import typing as t
 from abc import ABCMeta, abstractmethod
-from contextlib import contextmanager
+from contextlib import contextmanager, asynccontextmanager
 from contextvars import copy_context
 
 from .utils import curio, trio, AsyncioContextTask
@@ -99,12 +99,21 @@ class CurioRunner(AIORunner):
 
 class TrioRunner(AIORunner):
 
+    @asynccontextmanager
+    async def run_context(self):
+        yield
+
     def __init__(self, **params):
         if trio is None:
             raise RuntimeError('Trio is not installed.')
 
         super(TrioRunner, self).__init__()
         self.params = params
+
+        if self.params.pop('trio_asyncio', False):
+            import trio_asyncio
+
+            self.run_context = trio_asyncio.open_loop
 
     def close(self):
         pass
@@ -113,11 +122,12 @@ class TrioRunner(AIORunner):
         ctx = self.ctx
 
         async def helper():
-            for var in ctx:
-                var.set(ctx[var])
-            res = await fn(*args, **kwargs)
-            self.ctx = copy_context()
-            return res
+            async with self.run_context():
+                for var in ctx:
+                    var.set(ctx[var])
+                res = await fn(*args, **kwargs)
+                self.ctx = copy_context()
+                return res
 
         return trio.run(helper, **self.params)
 
