@@ -6,7 +6,7 @@ import pytest
     pytest.param(
         ('trio', {'restrict_keyboard_interrupt_to_checkpoints': True}), id='trio-keyboard'),
     pytest.param(('trio', {'trio_asyncio': True}), id='trio-asyncio'),
-])
+], scope='module')
 def aiolib(request):
     return request.param
 
@@ -15,7 +15,6 @@ async def test_base():
     import trio
 
     await trio.sleep(1e-2)
-    assert True
 
 
 @pytest.mark.parametrize('aiolib', [('trio', {'trio_asyncio': True})])
