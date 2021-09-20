@@ -119,12 +119,16 @@ class TrioRunner(AIORunner):
         pass
 
     def run(self, fn: t.Callable[..., t.Awaitable], *args, **kwargs):
+        from sniffio import current_async_library_cvar
 
         async def helper():
             trio.lowlevel.current_task().context = self.ctx
             await trio.sleep(0)
+            token = current_async_library_cvar.set('trio')
             async with self.run_context():
-                return await fn(*args, **kwargs)
+                res = await fn(*args, **kwargs)
+            current_async_library_cvar.reset(token)
+            return res
 
         return trio.run(helper, **self.params)
 
