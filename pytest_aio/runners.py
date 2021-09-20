@@ -119,15 +119,12 @@ class TrioRunner(AIORunner):
         pass
 
     def run(self, fn: t.Callable[..., t.Awaitable], *args, **kwargs):
-        ctx = self.ctx
 
         async def helper():
-            for var in ctx:
-                var.set(ctx[var])
+            trio.lowlevel.current_task().context = self.ctx
+            await trio.sleep(0)
             async with self.run_context():
-                res = await fn(*args, **kwargs)
-            self.ctx = copy_context()
-            return res
+                return await fn(*args, **kwargs)
 
         return trio.run(helper, **self.params)
 
@@ -157,3 +154,8 @@ def get_runner(aiolib: str, **params) -> t.Generator[AIORunner, t.Any, None]:
 
     finally:
         CURRENT_RUNNER = None
+
+
+def move_context(ctx):
+    for var in ctx:
+        var.set(ctx[var])
