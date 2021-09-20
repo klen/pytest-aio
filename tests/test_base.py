@@ -1,24 +1,23 @@
 import pytest
 
-from .utils import aio_sleep, sniffio
+from sniffio import current_async_library
 
 
 def test_sync():
     assert True
 
 
-async def test_async():
-    await aio_sleep(1e-2)
+async def test_async(aiosleep):
+    await aiosleep(1e-2)
     assert True
 
 
-async def test_aiolib(aiolib):
-    await aio_sleep(1e-2)
+async def test_aiolib(aiolib, aiosleep):
     lib, _ = aiolib
-    curlib = sniffio.current_async_library()
+    curlib = current_async_library()
     assert lib.startswith(curlib)
 
 
 @pytest.mark.parametrize('aiolib', ['trio', 'curio'])
 async def test_parametrize_aiolib(aiolib):
-    assert sniffio.current_async_library() in {'trio', 'curio'}
+    assert current_async_library() in {'trio', 'curio'}
