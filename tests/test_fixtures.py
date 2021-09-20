@@ -57,3 +57,8 @@ def test_events(events):
         assert e1[0] == e2[0]
         assert e1[1] == 'start'
         assert e2[1] == 'finish'
+
+
+async def test_aiosleep(aiosleep):
+    await aiosleep(1e-2)
+    assert True

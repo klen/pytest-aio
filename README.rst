@@ -124,6 +124,12 @@ To set a specific backends for a single test only:
         await asyncio.sleep(1)
         assert True
 
+Helpers
+-------
+
+The plugin contains `aiosleep` fixture. It's an equivalent to `asyncio.sleep`,
+`trio.sleep`, `curio.sleep` for current running library.
+
 
 .. _bugtracker:
 

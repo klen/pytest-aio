@@ -1,4 +1,6 @@
 import typing as t
+
+import asyncio
 from contextvars import Context
 from inspect import iscoroutinefunction, isasyncgenfunction
 
@@ -22,6 +24,19 @@ def aiocontext(aiolib, request):
     """Update context."""
     ctx = Context()
     return ctx
+
+
+@pytest.fixture
+def aiosleep(aiolib):
+    name = aiolib[0]
+    if name == 'asyncio':
+        return asyncio.sleep
+
+    if name == 'trio':
+        return trio.sleep
+
+    if name == 'curio':
+        return curio.sleep
 
 
 @pytest.hookimpl(tryfirst=True)
