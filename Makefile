@@ -2,7 +2,7 @@ VIRTUAL_ENV 	?= env
 
 all: $(VIRTUAL_ENV)
 
-$(VIRTUAL_ENV): setup.cfg
+$(VIRTUAL_ENV): requirements/requirements.txt requirements/requirements-tests.txt
 	@[ -d $(VIRTUAL_ENV) ] || python -m venv $(VIRTUAL_ENV)
 	@$(VIRTUAL_ENV)/bin/pip install -e .[build,tests]
 	@touch $(VIRTUAL_ENV)
@@ -12,6 +12,9 @@ VERSION	?= minor
 .PHONY: version
 version: $(VIRTUAL_ENV)
 	$(VIRTUAL_ENV)/bin/bump2version $(VERSION)
+
+.PHONY: release
+release:
 	git checkout master
 	git pull
 	git merge develop

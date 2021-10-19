@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager, asynccontextmanager
 from contextvars import copy_context
 
-from .utils import curio, trio, AsyncioContextTask
+from .utils import curio, trio
 
 
 class AIORunner(metaclass=ABCMeta):
@@ -21,6 +21,16 @@ class AIORunner(metaclass=ABCMeta):
     @abstractmethod
     def run(self, fn: t.Callable[..., t.Awaitable], *args, **kwargs):
         """Run the given coroutine function."""
+
+    async def run_context_helper(self, fn: t.Callable[..., t.Awaitable], *args, **kwargs):
+        """Copy context and run the given async function."""
+        ctx = self.ctx
+        for var in ctx:
+            var.set(ctx[var])
+        try:
+            return await fn(*args, **kwargs)
+        finally:
+            self.ctx = copy_context()
 
     def __enter__(self) -> AIORunner:
         return self
@@ -47,11 +57,10 @@ class AsyncioRunner(AIORunner):
         asyncio.set_event_loop(self._loop)
 
     def run(self, fn: t.Callable[..., t.Awaitable], *args, **kwargs):
-        loop: asyncio.AbstractEventLoop = self._loop
-        task = AsyncioContextTask(fn(*args, **kwargs), self.ctx, loop)
-        return loop.run_until_complete(task)
+        return self._loop.run_until_complete(self.run_context_helper(fn, *args, **kwargs))
 
     def close(self):
+        """Close remaining tasks."""
         try:
             tasks = asyncio.all_tasks(self._loop)
             if not tasks:
@@ -61,9 +70,7 @@ class AsyncioRunner(AIORunner):
                 task.cancel()
 
             asyncio.set_event_loop(self._loop)
-            self._loop.run_until_complete(
-                asyncio.gather(*tasks, return_exceptions=True)
-            )
+            self._loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
 
             for task in tasks:
                 if task.cancelled():
