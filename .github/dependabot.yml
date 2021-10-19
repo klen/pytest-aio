@@ -8,14 +8,14 @@ updates:
       - dependencies
       - autosquash
     schedule:
-      interval: "daily"
+      interval: "weekly"
 
   # Maintain dependencies for Python
   - package-ecosystem: "pip"
-    directory: "/"
+    directory: "/requirements"
     labels:
       - dependencies
       - autosquash
     schedule:
-      interval: "daily"
+      interval: "weekly"
     open-pull-requests-limit: 10
