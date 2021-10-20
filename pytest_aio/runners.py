@@ -6,7 +6,16 @@ from abc import ABCMeta, abstractmethod
 from contextlib import contextmanager, asynccontextmanager
 from contextvars import copy_context
 
-from .utils import curio, trio
+from .utils import curio, trio, AsyncioContextTask
+
+
+# Patch anyio to support AsyncioContextTask
+try:
+    from anyio._backends import _asyncio
+
+    _asyncio.get_coro = lambda task: task._coro
+except ImportError:
+    pass
 
 
 class AIORunner(metaclass=ABCMeta):
@@ -57,7 +66,9 @@ class AsyncioRunner(AIORunner):
         asyncio.set_event_loop(self._loop)
 
     def run(self, fn: t.Callable[..., t.Awaitable], *args, **kwargs):
-        return self._loop.run_until_complete(self.run_context_helper(fn, *args, **kwargs))
+        task = AsyncioContextTask(fn(*args, **kwargs), self.ctx, self._loop)
+        #  return self._loop.run_until_complete(self.run_context_helper(fn, *args, **kwargs))
+        return self._loop.run_until_complete(task)
 
     def close(self):
         """Close remaining tasks."""
