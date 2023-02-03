@@ -11,6 +11,7 @@ VERSION	?= minor
 
 .PHONY: version
 version: $(VIRTUAL_ENV)
+	$(VIRTUAL_ENV)/bin/pip install bump2version
 	$(VIRTUAL_ENV)/bin/bump2version $(VERSION)
 
 .PHONY: release

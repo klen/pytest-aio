@@ -1,19 +1,17 @@
-import typing as t
-
 import asyncio
 from contextvars import Context
-from inspect import iscoroutinefunction, isasyncgenfunction
+from inspect import isasyncgenfunction, iscoroutinefunction
+from typing import Dict, Optional, Tuple
 
 import pytest
 
 from .runners import get_runner
-from .utils import get_testfunc, trio, curio
+from .utils import curio, get_testfunc, trio
+
+DEFAULT_AIOLIBS = ["asyncio", *(trio and ["trio"] or []), *(curio and ["curio"] or [])]
 
 
-DEFAULT_AIOLIBS = ['asyncio', *(trio and ['trio'] or []), *(curio and ['curio'] or [])]
-
-
-@pytest.fixture(params=DEFAULT_AIOLIBS, scope='session')
+@pytest.fixture(params=DEFAULT_AIOLIBS, scope="session")
 def aiolib(request):
     """Iterate async libraries."""
     return request.param
@@ -29,13 +27,13 @@ def aiocontext(aiolib, request):
 @pytest.fixture
 def aiosleep(aiolib):
     name = aiolib[0]
-    if name == 'asyncio':
+    if name == "asyncio":
         return asyncio.sleep
 
-    if name == 'trio':
+    if name == "trio":
         return trio.sleep
 
-    if name == 'curio':
+    if name == "curio":
         return curio.sleep
 
 
@@ -45,12 +43,12 @@ def pytest_pycollect_makeitem(collector, name, obj):
     if collector.istestfunction(obj, name):
         testfunc, _ = get_testfunc(obj)
         if iscoroutinefunction(testfunc):
-            pytest.mark.usefixtures('aiolib')(obj)
+            pytest.mark.usefixtures("aiolib")(obj)
 
 
 @pytest.hookimpl(tryfirst=True)
-def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> t.Optional[bool]:
-    backend: t.Tuple[str, t.Dict] = pyfuncitem.funcargs.get('aiolib')  # type: ignore
+def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> Optional[bool]:
+    backend: Tuple[str, Dict] = pyfuncitem.funcargs.get("aiolib")  # type: ignore
     if not backend:
         return None
 
@@ -80,7 +78,7 @@ def pytest_fixture_setup(fixturedef, request):
     func = fixturedef.func
 
     # Fix aiolib fixture
-    if fixturedef.argname == 'aiolib':
+    if fixturedef.argname == "aiolib":
 
         def fix_aiolib(*args, **kwargs):
             """Convert aiolib fixture value to a tuple."""
@@ -95,13 +93,13 @@ def pytest_fixture_setup(fixturedef, request):
         return
 
     argnames = fixturedef.argnames
-    if 'aiolib' not in fixturedef.argnames:
-        fixturedef.argnames += 'aiolib',
+    if "aiolib" not in fixturedef.argnames:
+        fixturedef.argnames += ("aiolib",)
 
     def wrapper(*args, aiolib, **kwargs):
         lib, params = aiolib
-        if 'aiolib' in argnames:
-            kwargs['aiolib'] = aiolib
+        if "aiolib" in argnames:
+            kwargs["aiolib"] = aiolib
 
         with get_runner(lib, **params) as runner:
             if iscoroutinefunction(func):
@@ -112,7 +110,7 @@ def pytest_fixture_setup(fixturedef, request):
             try:
                 yield runner.run(gen.__anext__().__await__)
             except StopAsyncIteration:
-                raise RuntimeError('Async generator did not yield')
+                raise RuntimeError("Async generator did not yield")
 
             try:
                 runner.run(gen.__anext__().__await__)
@@ -120,6 +118,6 @@ def pytest_fixture_setup(fixturedef, request):
                 pass
             else:
                 runner.run(gen.aclose)
-                raise RuntimeError('Async generator fixture did not stop')
+                raise RuntimeError("Async generator fixture did not stop")
 
     fixturedef.func = wrapper
