@@ -47,12 +47,12 @@ repos:
 - repo: https://github.com/python-poetry/poetry
   rev: '1.7.0'
   hooks:
-  - id: poetry-check
-    files: ^(.*/)?pyproject\.toml$
-    stages: ["pre-commit"]
   - id: poetry-lock
     files: ^(.*/)?(poetry\.lock|pyproject\.toml)$
     args: ["--no-update"]
+    stages: ["pre-commit"]
+  - id: poetry-check
+    files: ^(.*/)?pyproject\.toml$
     stages: ["pre-commit"]
 
 - repo: local
