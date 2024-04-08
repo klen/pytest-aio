@@ -20,7 +20,7 @@ jobs:
     - name: Install poetry
       run: pipx install poetry
     - name: Setup poetry
-      run: poetry config pypi-token.pypi ${{ secrets.pypy }}
+      run: poetry config pypi-token.pypi ${{ secrets.PYPI }}
     - name: Build and publish
       run: poetry publish --build
 
