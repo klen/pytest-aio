@@ -153,7 +153,7 @@ files = [
 name = "curio"
 version = "1.6"
 description = ""
-optional = true
+optional = false
 python-versions = ">= 3.7"
 files = []
 develop = false
@@ -772,7 +772,7 @@ files = [
 name = "uvloop"
 version = "0.19.0"
 description = "Fast implementation of asyncio event loop on top of libuv"
-optional = true
+optional = false
 python-versions = ">=3.8.0"
 files = [
     {file = "uvloop-0.19.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:de4313d7f575474c8f5a12e163f6d89c0a878bc49219641d49e6f1444369a90e"},
@@ -840,4 +840,4 @@ uvloop = ["uvloop"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "7c4dae05fc11ff072c0340cb4a0a4e915d8ade38d702d6c41f790faad0c25960"
+content-hash = "9267e590d09bc48927720480b1ed69ada2850a6d8e6aa6c88c85580a5614ffde"

@@ -44,6 +44,9 @@ pytest-mypy = "*"
 ruff = "*"
 tox = "*"
 trio_asyncio = "*"
+curio = { git = "https://github.com/dabeaz/curio" }
+trio = { version = "*" }
+uvloop = { version = "*" }
 
 [tool.poetry.extras]
 curio = ["curio"]
