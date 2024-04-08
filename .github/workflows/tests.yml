@@ -16,23 +16,30 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
 
     steps:
-    - name: Checkout changes
-      uses: actions/checkout@main
+    - uses: actions/checkout@main
+    - name: install poetry
+      run: pip install poetry
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@main
       with:
+        cache: poetry
         python-version: ${{ matrix.python-version }}
-        cache: pip
 
-    - name: Install dependencies
-      run: pip install .[tests]
+    - name: Setup requirements
+      run: poetry install --with dev
+
+    - name: Check code
+      run: poetry run ruff muffin
+
+    - name: Check typing
+      run: poetry run mypy
 
     - name: Test with pytest
-      run: pytest tests
+      run: poetry run pytest tests
 
   notify:
     runs-on: ubuntu-latest
