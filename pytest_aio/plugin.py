@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 from contextvars import Context
 from inspect import isasyncgenfunction, iscoroutinefunction
@@ -17,14 +19,13 @@ def aiolib(request):
     return request.param
 
 
-@pytest.fixture
+@pytest.fixture()
 def aiocontext(aiolib, request):
     """Update context."""
-    ctx = Context()
-    return ctx
+    return Context()
 
 
-@pytest.fixture
+@pytest.fixture()
 def aiosleep(aiolib):
     name = aiolib[0]
     if name == "asyncio":
@@ -35,6 +36,7 @@ def aiosleep(aiolib):
 
     if name == "curio":
         return curio.sleep
+    return None
 
 
 @pytest.hookimpl(tryfirst=True)
@@ -48,7 +50,7 @@ def pytest_pycollect_makeitem(collector, name, obj):
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> Optional[bool]:
-    backend: Tuple[str, Dict] = pyfuncitem.funcargs.get("aiolib")  # type: ignore
+    backend: Tuple[str, Dict] = pyfuncitem.funcargs.get("aiolib")  # type: ignore[assignment]
     if not backend:
         return None
 
@@ -110,7 +112,7 @@ def pytest_fixture_setup(fixturedef, request):
             try:
                 yield runner.run(gen.__anext__().__await__)
             except StopAsyncIteration:
-                raise RuntimeError("Async generator did not yield")
+                raise RuntimeError("Async generator did not yield") from None
 
             try:
                 runner.run(gen.__anext__().__await__)

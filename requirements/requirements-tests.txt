@@ -1,8 +1,0 @@
-anyio
-curio
-hypothesis
-pytest
-pytest-mypy
-trio
-trio_asyncio
-uvloop

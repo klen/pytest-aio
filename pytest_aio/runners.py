@@ -12,7 +12,7 @@ from .utils import AsyncioContextTask, curio, trio
 try:
     from anyio._backends import _asyncio
 
-    _asyncio.get_coro = lambda task: task._coro
+    _asyncio.get_coro = lambda task: task._coro  # type: ignore[attr-defined]
 except ImportError:
     pass
 
@@ -81,9 +81,7 @@ class AsyncioRunner(AIORunner):
                 task.cancel()
 
             asyncio.set_event_loop(self._loop)
-            self._loop.run_until_complete(
-                asyncio.gather(*tasks, return_exceptions=True)
-            )
+            self._loop.run_until_complete(asyncio.gather(*tasks, return_exceptions=True))
 
             for task in tasks:
                 if task.cancelled():
@@ -128,7 +126,7 @@ class TrioRunner(AIORunner):
         self.params = params
 
         if trio_asyncio:
-            import trio_asyncio as asyncio_trio
+            import trio_asyncio as asyncio_trio  # type: ignore[import-untyped]
 
             self.run_context = asyncio_trio.open_loop
 

@@ -1,22 +1,17 @@
 import asyncio
 from typing import Tuple, TypeVar
 
-try:
-    from asyncio.tasks import _task_name_counter  # type: ignore
-except ImportError:  # support py37
-    import itertools
-
-    _task_name_counter = itertools.count(1).__next__
+from asyncio.tasks import _task_name_counter  # type: ignore
 
 try:
     import trio
 except ImportError:
-    trio = None
+    trio = None  # type: ignore[assignment]
 
 try:
-    import curio
+    import curio  # type: ignore[import-untyped]
 except ImportError:
-    curio = None
+    curio = None  # type: ignore[assignment]
 
 
 TvObj = TypeVar("TvObj")

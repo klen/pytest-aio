@@ -1,0 +1,83 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "pytest-aio"
+version = "1.5.0"
+description = "Pytest plugin for testing async python code"
+readme = "README.rst"
+license = "MIT"
+authors = ["Kirill Klenov <horneds@gmail.com>"]
+keywords = ["pytest", "asyncio", "trio", "curio"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Software Development :: Testing",
+  "Framework :: Pytest",
+]
+repository = "https://github.com/klen/pytest-aio"
+homepage = "https://github.com/klen/pytest-aio"
+packages = [{ include = "pytest_aio" }]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pytest = "*"
+
+[tool.poetry.group.dev.dependencies]
+anyio = "*"
+curio = { git = "https://github.com/dabeaz/curio" }
+hypothesis = "*"
+pre-commit = "*"
+pytest = "*"
+pytest-mypy = "*"
+trio = "*"
+trio_asyncio = "*"
+uvloop = "*"
+tox = "*"
+
+[tool.poetry.extras]
+curio = ["curio"]
+trio = ["trio"]
+uvloop = ["uvloop"]
+
+[tool.poetry.plugins]
+pytest11 = { aio = "pytest_aio.plugin" }
+
+[tool.pytest.ini_options]
+addopts = "-xsv"
+log_cli = true
+
+[tool.mypy]
+packages = ["pytest_aio"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311"]
+preview = true
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+isolated_build = true
+envlist = py39,py310,py311,py312
+
+[testenv]
+allowlist_externals = poetry
+commands_pre =
+    poetry install --no-root --sync --with dev
+commands =
+    poetry run pytest --mypy tests --import-mode importlib
+"""

@@ -1,53 +1,52 @@
-VIRTUAL_ENV 	?= env
+VIRTUAL_ENV 	?= .venv
 
 all: $(VIRTUAL_ENV)
 
-$(VIRTUAL_ENV): requirements/requirements.txt requirements/requirements-tests.txt
+$(VIRTUAL_ENV): poetry.lock
 	@[ -d $(VIRTUAL_ENV) ] || python -m venv $(VIRTUAL_ENV)
-	@$(VIRTUAL_ENV)/bin/pip install -e .[build,tests]
+	@poetry install --with dev
+	@poetry run pre-commit install --hook-type pre-push
 	@touch $(VIRTUAL_ENV)
+
+.PHONY: test t
+test t: $(VIRTUAL_ENV)
+	@poetry run pytest tests
+
+.PHONY: mypy
+mypy: $(VIRTUAL_ENV)
+	@poetry run mypy
+
+.PHONY: ruff
+ruff: $(VIRTUAL_ENV)
+	@poetry run ruff check pytest_aio
 
 VERSION	?= minor
 
-.PHONY: version
-version: $(VIRTUAL_ENV)
-	$(VIRTUAL_ENV)/bin/pip install bump2version
-	$(VIRTUAL_ENV)/bin/bump2version $(VERSION)
+#  Bump version
+# ==============
 
 .PHONY: release
+VERSION?=minor
+# target: release - Bump version
 release:
-	git checkout master
-	git pull
-	git merge develop
-	git checkout develop
-	git push origin develop master
-	git push --tags
+	@git checkout master
+	@git pull
+	@git merge develop
+	@poetry version $(VERSION)
+	@git commit -am "Bump version: `poetry version -s`"
+	@git tag `poetry version -s`
+	@git checkout develop
+	@git merge master
+	@git push origin develop master
+	@git push --tags
 
 .PHONY: minor
-minor:
-	make version VERSION=minor
+minor: release
 
 .PHONY: patch
 patch:
-	make version VERSION=patch
+	make release VERSION=patch
 
 .PHONY: major
 major:
-	make version VERSION=major
-
-
-.PHONY: clean
-# target: clean - Display callable targets
-clean:
-	rm -rf build/ dist/ docs/_build *.egg-info
-	find $(CURDIR) -name "*.py[co]" -delete
-	find $(CURDIR) -name "*.orig" -delete
-	find $(CURDIR)/$(MODULE) -name "__pycache__" | xargs rm -rf
-
-
-test t: $(VIRTUAL_ENV)
-	$(VIRTUAL_ENV)/bin/pytest tests
-
-
-mypy: $(VIRTUAL_ENV)
-	$(VIRTUAL_ENV)/bin/mypy pytest_aio
+	make release VERSION=major
