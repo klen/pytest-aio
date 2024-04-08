@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pytest-aio"
-version = "1.5.0"
+version = "1.6.0"
 description = "Pytest plugin for testing async python code"
 readme = "README.rst"
 license = "MIT"

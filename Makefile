@@ -34,7 +34,7 @@ release:
 	@git pull
 	@git merge develop
 	@poetry version $(VERSION)
-	@git commit -am "Bump version: `poetry version -s`"
+	@git commit -am "build(release): `poetry version -s`"
 	@git tag `poetry version -s`
 	@git checkout develop
 	@git merge master
