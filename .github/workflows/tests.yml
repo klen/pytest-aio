@@ -33,7 +33,7 @@ jobs:
       run: poetry install --with dev
 
     - name: Check code
-      run: poetry run ruff pytest_aio
+      run: poetry run ruff check pytest_aio
 
     - name: Check typing
       run: poetry run mypy
