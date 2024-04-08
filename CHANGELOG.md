@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.6.0] - 2024-04-08
+## [1.8.1] - 2024-04-08
 ### Added
 - Support Python 3.12
 
@@ -34,8 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
-[Unreleased]: https://github.com/klen/muffin-databases/compare/1.6.0...HEAD
-[1.6.0]: https://github.com/klen/muffin-databases/compare/1.5.0...1.6.0
+[Unreleased]: https://github.com/klen/muffin-databases/compare/1.8.1...HEAD
+[1.6.0]: https://github.com/klen/muffin-databases/compare/1.5.0...1.8.1
 [1.5.0]: https://github.com/klen/muffin-databases/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/klen/muffin-databases/compare/1.4.1...1.5.0
 [1.4.1]: https://github.com/klen/muffin-databases/compare/1.4.0...1.4.1
