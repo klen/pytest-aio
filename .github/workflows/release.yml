@@ -1,5 +1,9 @@
 name: release
 
+concurrency:
+  group: build-${{ github.event.workflow_run.head_branch  }}
+  cancel-in-progress: true
+
 on:
   workflow_run:
     workflows: [tests]
