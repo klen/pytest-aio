@@ -39,10 +39,11 @@ hypothesis = "*"
 pre-commit = "*"
 pytest = "*"
 pytest-mypy = "*"
+ruff = "*"
+tox = "*"
 trio = "*"
 trio_asyncio = "*"
 uvloop = "*"
-tox = "*"
 
 [tool.poetry.extras]
 curio = ["curio"]
