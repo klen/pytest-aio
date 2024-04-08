@@ -31,19 +31,19 @@ packages = [{ include = "pytest_aio" }]
 [tool.poetry.dependencies]
 python = "^3.9"
 pytest = "*"
+curio = { git = "https://github.com/dabeaz/curio", optional = true }
+trio = { version = "*", optional = true }
+uvloop = { version = "*", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 anyio = "*"
-curio = { git = "https://github.com/dabeaz/curio" }
 hypothesis = "*"
 pre-commit = "*"
 pytest = "*"
 pytest-mypy = "*"
 ruff = "*"
 tox = "*"
-trio = "*"
 trio_asyncio = "*"
-uvloop = "*"
 
 [tool.poetry.extras]
 curio = ["curio"]
