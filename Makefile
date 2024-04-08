@@ -5,7 +5,8 @@ all: $(VIRTUAL_ENV)
 $(VIRTUAL_ENV): poetry.lock
 	@[ -d $(VIRTUAL_ENV) ] || python -m venv $(VIRTUAL_ENV)
 	@poetry install --with dev
-	@poetry run pre-commit install --hook-type pre-push
+	@poetry self add poetry-bumpversion
+	@poetry run pre-commit install
 	@touch $(VIRTUAL_ENV)
 
 .PHONY: test t
