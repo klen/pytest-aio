@@ -31,7 +31,7 @@ packages = [{ include = "pytest_aio" }]
 [tool.poetry.dependencies]
 python = "^3.9"
 pytest = "*"
-curio = { version = "*", optional = true, python = "<3.12" }
+curio = { git = "https://github.com/dabeaz/curio" }
 trio = { version = "*", optional = true }
 uvloop = { version = "*", optional = true }
 
