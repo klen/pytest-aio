@@ -31,7 +31,7 @@ packages = [{ include = "pytest_aio" }]
 [tool.poetry.dependencies]
 python = "^3.9"
 pytest = "*"
-curio = { git = "https://github.com/dabeaz/curio" }
+curio-compat = { version = "*", optional = true }
 trio = { version = "*", optional = true }
 uvloop = { version = "*", optional = true }
 
@@ -44,12 +44,12 @@ pytest-mypy = "*"
 ruff = "*"
 tox = "*"
 trio_asyncio = "*"
-curio = { git = "https://github.com/dabeaz/curio" }
+curio-compat = "*"
 trio = { version = "*" }
 uvloop = { version = "*" }
 
 [tool.poetry.extras]
-curio = ["curio"]
+curio = ["curio-compat"]
 trio = ["trio"]
 uvloop = ["uvloop"]
 
