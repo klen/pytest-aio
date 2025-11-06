@@ -31,7 +31,7 @@ class AIORunner(metaclass=ABCMeta):
 
 
 try:
-    from asyncio import Runner as AsyncioRunner
+    from asyncio import Runner as AsyncioRunner  # type: ignore[attr-defined]
 # py310
 except ImportError:
 
@@ -134,7 +134,7 @@ CURRENT_RUNNER = None
 
 
 @contextmanager
-def get_runner(aiolib: str, **params) -> Generator[AIORunner | asyncio.Runner, Any, None]:
+def get_runner(aiolib: str, **params) -> Generator[AIORunner | AsyncioRunner, Any, None]:
     global CURRENT_RUNNER
     if CURRENT_RUNNER:
         yield CURRENT_RUNNER
