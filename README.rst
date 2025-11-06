@@ -36,7 +36,7 @@ Features
 Requirements
 =============
 
-- python >= 3.9
+- python >= 3.10
 
 Installation
 =============
@@ -107,8 +107,8 @@ so by passing a tuple of (backend name, options dict):
 .. code-block:: python
 
     @pytest.fixture(params=[
-        pytest.param(('asyncio', {'use_uvloop': False}), id='asyncio'),
-        pytest.param(('asyncio', {'use_uvloop': True}), id='asyncio+uvloop'),
+        pytest.param(('asyncio'), id='asyncio'),
+        pytest.param(('asyncio', {'loop_factory': uvloop.new_event_loop}), id='asyncio+uvloop'),
         pytest.param(('trio', {'trio_asyncio': True}), id='trio+asyncio'),
         pytest.param(('curio', {'debug': True}), id='curio'),
     ])
@@ -164,4 +164,4 @@ Licensed under a `MIT license`_.
 .. _klen: https://github.com/klen
 .. _pytest: https://docs.pytest.org/en/stable/
 .. _AnyIO: https://github.com/agronholm/anyio
-.. _trio-asyncio: https://github.com/python-trio/trio-asyncio 
+.. _trio-asyncio: https://github.com/python-trio/trio-asyncio

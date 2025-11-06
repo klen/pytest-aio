@@ -1,19 +1,7 @@
 import pytest
 from contextvars import ContextVar
 
-
-test_var: ContextVar = ContextVar('test_var')
-
-
-#  @pytest.fixture
-#  def aiolib():
-#      return ('asyncio', {'use_uvloop': False})
-
-#  @pytest.fixture
-#  def aiolib():
-#      #  return ('asyncio', {'use_uvloop': False})
-#      #  return 'trio'
-#      return 'curio'
+test_var: ContextVar = ContextVar("test_var")
 
 
 @pytest.fixture

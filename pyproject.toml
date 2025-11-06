@@ -16,10 +16,11 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: PyPy",
   "Topic :: Software Development :: Testing",
   "Framework :: Pytest",
@@ -29,7 +30,7 @@ homepage = "https://github.com/klen/pytest-aio"
 packages = [{ include = "pytest_aio" }]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 pytest = "*"
 curio-compat = { version = "*", optional = true }
 trio = { version = "*", optional = true }
@@ -65,19 +66,19 @@ packages = ["pytest_aio"]
 ignore_missing_imports = true
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 100
 
 [tool.black]
 line-length = 100
-target-version = ["py38", "py39", "py310", "py311"]
+target-version = ["py310"]
 preview = true
 
 [tool.tox]
 legacy_tox_ini = """
 [tox]
 isolated_build = true
-envlist = py39,py310,py311,py312
+envlist = py310,py311,py312,py313,py314
 
 [testenv]
 allowlist_externals = poetry

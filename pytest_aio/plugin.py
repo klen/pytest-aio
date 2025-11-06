@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 from contextvars import Context
 from inspect import isasyncgenfunction, iscoroutinefunction
-from typing import Dict, Optional, Tuple
 
 import pytest
 
@@ -49,8 +48,8 @@ def pytest_pycollect_makeitem(collector, name, obj):
 
 
 @pytest.hookimpl(tryfirst=True)
-def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> Optional[bool]:
-    backend: Tuple[str, Dict] = pyfuncitem.funcargs.get("aiolib")  # type: ignore[assignment]
+def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> bool | None:
+    backend: tuple[str, dict] = pyfuncitem.funcargs.get("aiolib")  # type: ignore[assignment]
     if not backend:
         return None
 
@@ -61,7 +60,7 @@ def pytest_pyfunc_call(pyfuncitem: pytest.Function) -> Optional[bool]:
 
     def run(**kwargs):
         with get_runner(aiolib, **params) as runner:
-            runner.run(testfunc, **kwargs)
+            runner.run(testfunc(**kwargs))
 
     if is_hypothesis:
         pyfuncitem.obj.hypothesis.inner_test = run
@@ -105,21 +104,21 @@ def pytest_fixture_setup(fixturedef, request):
 
         with get_runner(lib, **params) as runner:
             if iscoroutinefunction(func):
-                yield runner.run(func, *args, **kwargs)
+                yield runner.run(func(*args, **kwargs))
                 return
 
             gen = func(*args, **kwargs)
             try:
-                yield runner.run(gen.__anext__().__await__)
+                yield runner.run(gen.__anext__().__await__())
             except StopAsyncIteration:
                 raise RuntimeError("Async generator did not yield") from None
 
             try:
-                runner.run(gen.__anext__().__await__)
+                runner.run(gen.__anext__().__await__())
             except StopAsyncIteration:
                 pass
             else:
-                runner.run(gen.aclose)
+                runner.run(gen.aclose())
                 raise RuntimeError("Async generator fixture did not stop")
 
     fixturedef.func = wrapper

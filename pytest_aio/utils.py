@@ -23,6 +23,7 @@ def get_testfunc(obj: TvObj) -> Tuple[TvObj, bool]:
     return obj, False
 
 
+# py310
 class AsyncioContextTask(asyncio.tasks._PyTask):  # type: ignore
     def __init__(self, coro, context, loop):
         asyncio.futures._PyFuture.__init__(self, loop=loop)
