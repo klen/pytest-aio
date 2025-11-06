@@ -41,6 +41,7 @@ anyio = "*"
 hypothesis = "*"
 pre-commit = "*"
 pytest = "*"
+pytest-xdist = "*"
 pytest-mypy = "*"
 ruff = "*"
 tox = "*"
@@ -85,5 +86,5 @@ allowlist_externals = poetry
 commands_pre =
     poetry install --no-root --sync --with dev
 commands =
-    poetry run pytest --mypy tests --import-mode importlib
+    poetry run pytest -n auto --mypy tests --import-mode importlib
 """
