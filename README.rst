@@ -99,7 +99,7 @@ libraries for all your tests creating the global fixture:
     # Run all tests with Asyncio/Trio only
     @pytest.fixture(params=['asyncio', 'trio'])
     def aiolib(request):
-        assert request.param
+        return request.param
 
 If you want to specify different options for the selected backend, you can do
 so by passing a tuple of (backend name, options dict):
