@@ -36,8 +36,9 @@ release:
 			printf 'build(release): %s\n\n' "$$VERSION"; \
 			printf 'Changes:\n\n'; \
 			git log --oneline --pretty=format:'%s [%an]' master..develop | grep -Evi 'github|^Merge' || true; \
-		} | git commit -a -F -
-	git tag "$$VERSION"
+		} | git commit -a -F -; \
+		git tag "$$VERSION"; \
+	fi
 	git checkout master
 	git pull
 	git merge develop
