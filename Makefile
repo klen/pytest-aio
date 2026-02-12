@@ -40,8 +40,7 @@ release:
 	git checkout master
 	git merge develop
 	git checkout develop
-	git push origin develop master
-	git push origin --tags
+	git push origin develop master --tags
 	@echo "Release process complete for `uv version --short`"
 
 .PHONY: minor
