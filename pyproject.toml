@@ -53,6 +53,7 @@ dev = [
   "curio-compat",
   "trio",
   "uvloop",
+  "pyrefly>=0.52.0",
 ]
 
 [tool.hatch.build.targets.sdist]
