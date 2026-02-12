@@ -28,7 +28,7 @@ release:
 	git merge master
 	uvx bump-my-version bump $(VPART)
 	uv lock
-	@VERSION="$$(uv version --short)"; \
+	@VERSION=`uv version --short`
 	@{ \
 	  printf 'build(release): %s\n\n' "$$VERSION"; \
 	  printf 'Changes:\n\n'; \
