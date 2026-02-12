@@ -28,19 +28,20 @@ release:
 	git merge master
 	uvx bump-my-version bump $(VPART)
 	uv lock
+	@VERSION="$$(uv version --short)"; \
 	@{ \
-	  printf 'build(release): %s\n\n' "$$(uv version --short)"; \
+	  printf 'build(release): %s\n\n' "$$VERSION"; \
 	  printf 'Changes:\n\n'; \
 	  git log --oneline --pretty=format:'%s [%an]' master..develop | grep -Evi 'github|^Merge' || true; \
 	} | git commit -a -F -
-	git tag "$$(uv version --short)"
+	git tag "$$VERSION"
 	git checkout master
 	git pull
 	git merge develop
 	git checkout develop
 	git push origin develop master
 	git push origin --tags
-	@echo "Release process complete for `uv version --short`."
+	@echo "Release process complete for $$(VERSION)"
 
 .PHONY: minor
 minor: release
