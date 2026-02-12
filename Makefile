@@ -28,12 +28,15 @@ release:
 	git merge master
 	uvx bump-my-version bump $(VPART)
 	uv lock
-	@VERSION=`uv version --short`
-	@{ \
-	  printf 'build(release): %s\n\n' "$$VERSION"; \
-	  printf 'Changes:\n\n'; \
-	  git log --oneline --pretty=format:'%s [%an]' master..develop | grep -Evi 'github|^Merge' || true; \
-	} | git commit -a -F -
+	@VERSION="$$(uv version --short)"; \
+	if git diff --quiet && git diff --cached --quiet; then \
+	  echo "No changes to commit; skipping commit/tag"; \
+	else \
+		{ \
+			printf 'build(release): %s\n\n' "$$VERSION"; \
+			printf 'Changes:\n\n'; \
+			git log --oneline --pretty=format:'%s [%an]' master..develop | grep -Evi 'github|^Merge' || true; \
+		} | git commit -a -F -
 	git tag "$$VERSION"
 	git checkout master
 	git pull
