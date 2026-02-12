@@ -45,7 +45,7 @@ release:
 	git checkout develop
 	git push origin develop master
 	git push origin --tags
-	@echo "Release process complete for $$(VERSION)"
+	@echo "Release process complete for `uv version --short`"
 
 .PHONY: minor
 minor: release
