@@ -1,5 +1,6 @@
-import pytest
 import asyncio
+
+import pytest
 
 
 @pytest.fixture
@@ -10,6 +11,11 @@ def aiolib():
 async def test_running_loop():
     loop = asyncio.events.get_running_loop()
     assert loop is not None
+
+
+async def test_current_task():
+    assert asyncio.current_task()
+    assert asyncio.tasks.current_task()
 
 
 async def test_create_task():

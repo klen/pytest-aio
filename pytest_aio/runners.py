@@ -69,8 +69,9 @@ except ImportError:
                     if task.cancelled():
                         continue
 
-                    if task.exception() is not None:
-                        raise task.exception()
+                    exc = task.exception()
+                    if exc is not None:
+                        raise exc
             finally:
                 asyncio.set_event_loop(None)
                 self._loop.close()
@@ -110,7 +111,7 @@ class TrioRunner(AIORunner):
         if trio_asyncio:
             import trio_asyncio as asyncio_trio  # type: ignore[import-untyped]
 
-            self.run_context = asyncio_trio.open_loop
+            self.run_context = asyncio_trio.open_loop  # type: ignore
 
     def close(self):
         pass
@@ -119,14 +120,16 @@ class TrioRunner(AIORunner):
         from sniffio import current_async_library_cvar
 
         async def helper():
+            assert trio, "Trio is not available"
             trio.lowlevel.current_task().context = self.ctx
             await trio.sleep(0)
-            token = current_async_library_cvar.set("trio")
+            token = current_async_library_cvar.set("trio")  # type: ignore
             async with self.run_context():
                 res = await coro
             current_async_library_cvar.reset(token)
             return res
 
+        assert trio, "Trio is not available"
         return trio.run(helper, **self.params)
 
 

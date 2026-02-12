@@ -9,7 +9,12 @@ import pytest
 from .runners import get_runner
 from .utils import curio, get_testfunc, trio
 
-DEFAULT_AIOLIBS = ["asyncio", *(trio and ["trio"] or []), *(curio and ["curio"] or [])]
+DEFAULT_AIOLIBS = ["asyncio"]
+if trio:
+    DEFAULT_AIOLIBS.append(("trio"))
+
+if curio:
+    DEFAULT_AIOLIBS.append(("curio"))
 
 
 @pytest.fixture(params=DEFAULT_AIOLIBS, scope="session")
@@ -31,10 +36,13 @@ def aiosleep(aiolib):
         return asyncio.sleep
 
     if name == "trio":
+        assert trio, "trio is not available"
         return trio.sleep
 
     if name == "curio":
+        assert curio, "curio is not available"
         return curio.sleep
+
     return None
 
 

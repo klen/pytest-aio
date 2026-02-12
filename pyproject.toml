@@ -1,14 +1,15 @@
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry]
+[project]
 name = "pytest-aio"
 version = "2.0.0"
 description = "Pytest plugin for testing async python code"
+authors = [{ name = "Kirill Klenov", email = "horneds@gmail.com" }]
+requires-python = ">=3.10,<4"
 readme = "README.rst"
 license = "MIT"
-authors = ["Kirill Klenov <horneds@gmail.com>"]
 keywords = ["pytest", "asyncio", "trio", "curio"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -25,55 +26,52 @@ classifiers = [
   "Topic :: Software Development :: Testing",
   "Framework :: Pytest",
 ]
-repository = "https://github.com/klen/pytest-aio"
-homepage = "https://github.com/klen/pytest-aio"
-packages = [{ include = "pytest_aio" }]
+dependencies = ["pytest"]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-pytest = "*"
-curio-compat = { version = "*", optional = true }
-trio = { version = "*", optional = true }
-uvloop = { version = "*", optional = true }
-
-[tool.poetry.group.dev.dependencies]
-anyio = "*"
-hypothesis = "*"
-pre-commit = "*"
-pytest = "*"
-pytest-xdist = "*"
-pytest-mypy = "*"
-ruff = "*"
-tox = "*"
-trio_asyncio = "*"
-curio-compat = "*"
-trio = { version = "*" }
-uvloop = { version = "*" }
-
-[tool.poetry.extras]
-curio = ["curio-compat"]
+[project.optional-dependencies]
 trio = ["trio"]
 uvloop = ["uvloop"]
+curio = ["curio-compat"]
 
-[tool.poetry.plugins]
-pytest11 = { aio = "pytest_aio.plugin" }
+[project.urls]
+Homepage = "https://github.com/klen/pytest-aio"
+Repository = "https://github.com/klen/pytest-aio"
+
+[project.entry-points.pytest11]
+aio = "pytest_aio.plugin"
+
+[dependency-groups]
+dev = [
+  "anyio",
+  "hypothesis",
+  "pre-commit",
+  "pytest",
+  "pytest-xdist",
+  "ruff",
+  "tox",
+  "trio_asyncio",
+  "curio-compat",
+  "trio",
+  "uvloop",
+]
+
+[tool.hatch.build.targets.sdist]
+include = ["pytest_aio"]
+
+[tool.hatch.build.targets.wheel]
+include = ["pytest_aio"]
 
 [tool.pytest.ini_options]
 addopts = "-xsv"
 log_cli = true
 
-[tool.mypy]
-packages = ["pytest_aio"]
-ignore_missing_imports = true
-
 [tool.ruff]
+include = ["pytest_aio/*.py"]
 target-version = "py310"
 line-length = 100
 
-[tool.black]
-line-length = 100
-target-version = ["py310"]
-preview = true
+[tool.pyrefly]
+project-includes = ["pytest_aio"]
 
 [tool.tox]
 legacy_tox_ini = """
@@ -82,9 +80,9 @@ isolated_build = true
 envlist = py310,py311,py312,py313,py314
 
 [testenv]
-allowlist_externals = poetry
+allowlist_externals = uv
 commands_pre =
-    poetry install --no-root --sync --with dev
-commands =
-    poetry run pytest -n auto --mypy tests --import-mode importlib
+    uv install
+commands
+    uv run pytest -n auto tests --import-mode importlib
 """

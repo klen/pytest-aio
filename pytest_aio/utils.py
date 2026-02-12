@@ -1,7 +1,6 @@
 import asyncio
-from typing import Tuple, TypeVar
-
 from asyncio.tasks import _task_name_counter  # type: ignore
+from typing import Tuple, TypeVar
 
 try:
     import trio
@@ -26,7 +25,7 @@ def get_testfunc(obj: TvObj) -> Tuple[TvObj, bool]:
 # py310
 class AsyncioContextTask(asyncio.tasks._PyTask):  # type: ignore
     def __init__(self, coro, context, loop):
-        asyncio.futures._PyFuture.__init__(self, loop=loop)
+        asyncio.futures._PyFuture.__init__(self, loop=loop)  # type: ignore
 
         if self._source_traceback:
             del self._source_traceback[-1]
