@@ -367,7 +367,7 @@ wheels = [
 
 [[package]]
 name = "pytest-aio"
-version = "2.1.5"
+version = "2.1.6"
 source = { editable = "." }
 dependencies = [
     { name = "pytest" },
