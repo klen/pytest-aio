@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pytest-aio"
-version = "2.1.2"
+version = "2.1.3"
 description = "Pytest plugin for testing async python code"
 authors = [{ name = "Kirill Klenov", email = "horneds@gmail.com" }]
 requires-python = ">=3.10,<4"
@@ -89,7 +89,7 @@ commands
 """
 
 [tool.bumpversion]
-current_version = "2.1.2"
+current_version = "2.1.3"
 commit = false
 tag = false
 
