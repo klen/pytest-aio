@@ -23,24 +23,21 @@ ruff: $(VIRTUAL_ENV)
 VPART?=minor
 # target: release - Bump version
 release:
+	git checkout master
+	git pull
 	git checkout develop
 	git pull
 	git merge master
 	uvx bump-my-version bump $(VPART)
 	uv lock
 	@VERSION="$$(uv version --short)"; \
-	if git diff --quiet && git diff --cached --quiet; then \
-	  echo "No changes to commit; skipping commit/tag"; \
-	else \
 		{ \
 			printf 'build(release): %s\n\n' "$$VERSION"; \
 			printf 'Changes:\n\n'; \
 			git log --oneline --pretty=format:'%s [%an]' master..develop | grep -Evi 'github|^Merge' || true; \
 		} | git commit -a -F -; \
-		git tag "$$VERSION"; \
-	fi
+		git tag "$$VERSION";
 	git checkout master
-	git pull
 	git merge develop
 	git checkout develop
 	git push origin develop master
